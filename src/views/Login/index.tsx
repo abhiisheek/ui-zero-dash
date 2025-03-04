@@ -1,9 +1,18 @@
 import React from 'react';
 import { Form, Input, Button, Card } from 'antd';
+import { useNavigate } from 'react-router';
+
+import { login } from '@/apis/app';
 
 const Login: React.FC = () => {
-  const onFinish = (values: any) => {
-    console.log('Success:', values);
+  const navigate = useNavigate();
+
+  const onFinish = async (values: any) => {
+    const response = await login(values.email, values.password);
+
+    localStorage.setItem('token', response);
+
+    navigate('/');
   };
 
   const onFinishFailed = (errorInfo: any) => {
@@ -13,7 +22,7 @@ const Login: React.FC = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <Card className="w-full max-w-md">
-        <h2 className="text-center text-2xl mb-4">Login</h2>
+        <h2 className="text-center text-2xl mb-4">ZeroDash Login</h2>
         <Form
           name="login"
           initialValues={{ remember: true }}
@@ -21,10 +30,10 @@ const Login: React.FC = () => {
           onFinishFailed={onFinishFailed}
         >
           <Form.Item
-            name="username"
+            name="email"
             rules={[{ required: true, message: 'Please input your username!' }]}
           >
-            <Input placeholder="Username" />
+            <Input placeholder="Email" />
           </Form.Item>
 
           <Form.Item

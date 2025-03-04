@@ -6,7 +6,7 @@ const Navbar: React.FC = () => {
   return (
     <Layout.Sider width={100} className='!bg-white'>
       <Typography.Title className='!text-[20px] flex justify-center min-h-[64px] items-center !mb-0'>
-        Zero Dash
+        ZeroDash
       </Typography.Title>
       <Divider className="!m-0" />
       <Flex gap='large' vertical justify='center' className="!mx-[8px]">
