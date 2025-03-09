@@ -10,6 +10,7 @@ export const hideElement = (locationPathname: string, noElementRouteMap: any) =>
 
 const URLS: any = {
   login: "http://localhost:4000/user/login",
+  project: "http://localhost:4000/project",
 };
 
 export const getURL = (key: string) => {
