@@ -19,3 +19,12 @@ export const getProjects = async () => {
 
   return response;
 };
+
+export const getProject = async (id: string) => {
+  const response = await RequestHelper.makeRequest({
+    url: `${getURL("project")}/${id}`,
+    method: "GET",
+  });
+
+  return response;
+};
