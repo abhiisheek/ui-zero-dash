@@ -3,6 +3,7 @@ import { Typography, Row, Col, Badge, Card } from "antd";
 import { useParams, useNavigate } from "react-router";
 
 import Loader from "@/components/Loader";
+import Breadcrumb from "@/components/Breadcrumb";
 import { useProject } from "@/query/project";
 
 const ProjectDetails = () => {
@@ -29,6 +30,13 @@ const ProjectDetails = () => {
 
   return (
     <Row gutter={16} className='!px-[16px]'>
+      <Breadcrumb
+        items={[
+          { title: "Home", path: "/" },
+          { title: "Projects", path: "/projects" },
+          { title: details.name || "Project Name", path: "/" },
+        ]}
+      />
       {isPending && <Loader fullScreen />}
       <Col span={24}>
         <Row gutter={16} align={"middle"}>

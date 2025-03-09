@@ -3,6 +3,7 @@ import { Row, Col, Button } from "antd";
 
 import CreateProject from "./CreateProject";
 import ProjectList from "./ProjectList";
+import Breadcrumb from "@/components/Breadcrumb";
 
 const Projects = () => {
   const [openCreateProject, setOpenCreateProject] = useState(false);
@@ -17,6 +18,12 @@ const Projects = () => {
 
   return (
     <Row gutter={8}>
+      <Breadcrumb
+        items={[
+          { title: "Home", path: "/" },
+          { title: "Projects", path: "/projects" },
+        ]}
+      />
       <Col span={24}>
         <Row justify={"end"} align={"middle"} gutter={16}>
           <Col>
