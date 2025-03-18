@@ -14,7 +14,13 @@ const CreateProject: React.FC<CreateProjectProps> = ({ open, onCancel }) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [authRoles, setAuthRoles] = useState("");
-  const [dbDetails, setDBDetails] = useState({ host: "", port: "", user: "", password: "" });
+  const [dbDetails, setDBDetails] = useState({
+    host: "",
+    port: "",
+    user: "",
+    password: "",
+    schema: "",
+  });
   const [isPublic, setIsPublic] = useState(false);
 
   const { mutate, isPending } = useCreateProject();
@@ -44,7 +50,7 @@ const CreateProject: React.FC<CreateProjectProps> = ({ open, onCancel }) => {
     setName("");
     setDescription("");
     setAuthRoles("");
-    setDBDetails({ host: "", port: "", user: "", password: "" });
+    setDBDetails({ host: "", port: "", user: "", password: "", schema: "" });
     setIsPublic(false);
   };
 
@@ -119,6 +125,13 @@ const CreateProject: React.FC<CreateProjectProps> = ({ open, onCancel }) => {
               type='password'
               value={dbDetails.password}
               onChange={(e) => setDBDetails((old) => ({ ...old, password: e.target.value }))}
+            />
+          </Col>
+          <Col span={12}>
+            <Input
+              placeholder='Schema'
+              value={dbDetails.schema}
+              onChange={(e) => setDBDetails((old) => ({ ...old, schema: e.target.value }))}
             />
           </Col>
         </Row>

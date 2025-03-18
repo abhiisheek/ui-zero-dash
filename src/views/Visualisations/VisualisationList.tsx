@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Table, Badge, Row } from "antd";
 import { Link } from "react-router-dom";
+import { useParams } from "react-router";
 
 import Loader from "@/components/Loader";
-import { useProjects } from "@/query/project";
+import { useVisuals } from "@/query/project";
 
 const columns = [
   {
@@ -12,9 +13,7 @@ const columns = [
     key: "name",
     render: (name: any, dataItem: any) => (
       <Row align='middle'>
-        <Link to={`/projects/${dataItem._id}`}>
-          {name}
-        </Link>
+        <Link to={`/projects/${dataItem._id}`}>{name}</Link>
         {dataItem.public && <Badge count={"Public"} showZero color='#faad14' />}
       </Row>
     ),
@@ -43,14 +42,18 @@ const columns = [
 ];
 
 const VisualisationList: React.FC = () => {
-  const { data: apiData, isLoading } = useProjects();
+  const { projectId = "" } = useParams();
+  const { mutate, isPending } = useVisuals();
+  const [visuals, setVisuals] = useState<any[]>([]);
 
-  console.dir(apiData);
+  useEffect(() => {
+    mutate(projectId, { onSuccess: (data) => setVisuals(data) });
+  }, [mutate, projectId]);
 
   return (
     <div className='container mx-auto py-4'>
-      {isLoading && <Loader fullScreen />}
-      <Table dataSource={apiData || []} columns={columns} />
+      {isPending && <Loader fullScreen />}
+      <Table dataSource={visuals} columns={columns} />
     </div>
   );
 };

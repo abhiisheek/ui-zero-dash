@@ -20,6 +20,15 @@ export const getProjects = async () => {
   return response;
 };
 
+export const getVisuals = async (projectId: string) => {
+  const response = await RequestHelper.makeRequest({
+    url: `${getURL("project")}/${projectId}/viz/all`,
+    method: "GET",
+  });
+
+  return response;
+};
+
 export const getProject = async (id: string) => {
   const response = await RequestHelper.makeRequest({
     url: `${getURL("project")}/${id}`,
