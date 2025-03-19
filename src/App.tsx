@@ -4,7 +4,7 @@ import { jwtDecode } from "jwt-decode";
 
 import Router from "@/routes";
 import Parent from "@/views/Parent";
-import { UserContext } from "./context/UserContext";
+import { UserContext } from "@/context/UserContext";
 
 const App: FC = () => {
   const token = localStorage.getItem("token");

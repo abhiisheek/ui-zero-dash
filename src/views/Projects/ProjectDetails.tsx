@@ -7,19 +7,15 @@ import Breadcrumb from "@/components/Breadcrumb";
 import { useProject } from "@/query/project";
 
 const ProjectDetails = () => {
-  const { projectId } = useParams();
   const navigate = useNavigate();
+  const { projectId } = useParams();
   const { mutate, isPending } = useProject();
   const [details, setDetails] = useState<any>({});
 
   useEffect(() => {
     if (projectId) {
       mutate(projectId, {
-        onSuccess: (data) => {
-          setDetails(data);
-
-          console.log("Project Details:", data);
-        },
+        onSuccess: (data) =>setDetails(data),
       });
     }
   }, [projectId]);
@@ -69,6 +65,11 @@ const ProjectDetails = () => {
           {details?.db?.user && (
             <Col span={24}>
               <Typography.Text>Username : {details.db.user}</Typography.Text>
+            </Col>
+          )}
+          {details?.db?.schema && (
+            <Col span={24}>
+              <Typography.Text>Schema : {details.db.schema}</Typography.Text>
             </Col>
           )}
         </Row>
