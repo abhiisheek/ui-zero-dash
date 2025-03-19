@@ -9,12 +9,14 @@ const Login = lazy(() => import("@/views/Login"));
 const About = lazy(() => import("@/views/About"));
 const ProjectDetails = lazy(() => import("@/views/Projects/ProjectDetails"));
 const Visualisations = lazy(() => import("@/views/Visualisations"));
+const ConfigureViz = lazy(() => import("@/views/Visualisations/ConfigureViz"));
 
 const Router: FC = () => {
   return (
     <Suspense fallback={<Loader fullScreen />}>
       <Routes>
         <Route path='/projects' element={<Projects />} />
+        <Route path='/projects/:projectId/visualisations/create' element={<ConfigureViz />} />
         <Route path='/projects/:projectId/visualisations' element={<Visualisations />} />
         <Route path='/projects/:projectId' element={<ProjectDetails />} />
         <Route path='/login' element={<Login />} />
