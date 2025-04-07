@@ -14,6 +14,8 @@ import constants from "@/constants/constants";
 import { useTables, useTablesMetadata, useExecuteQuery } from "@/query/db";
 import { useProject } from "@/query/project";
 import Loader from "@/components/Loader";
+import Breadcrumb from "@/components/Breadcrumb";
+import { AppContext } from "@/context/AppContext";
 import VizCatalog from "./VizCatalog";
 import {
   generateSelectFieldOptionsFromDataset,
@@ -21,7 +23,7 @@ import {
   getChartConfigFromConfiguredValues,
 } from "./helpers";
 import TableList from "./TableList";
-import Breadcrumb from "@/components/Breadcrumb";
+
 
 const {
   ANT: {
@@ -45,6 +47,12 @@ const ConfigureViz: FC<ObjectType> = () => {
   const [selectedViz, setSelectedViz] = useState<ObjectType>({});
   const { mutate: getProjectDetails, isPending: isGetProjectDetailsPending } = useProject();
   const [projectDetails, setProjectDetails] = useState<any>({});
+  const { setState } = useContext(AppContext);
+
+  useEffect(
+    () => setState((old: ObjectType) => ({ ...old, viewName: "Create Visualisation" })),
+    [],
+  );
 
   useEffect(() => {
     if (projectId) {

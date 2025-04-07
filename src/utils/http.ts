@@ -1,5 +1,7 @@
 import cloneDeep from "lodash.clonedeep";
 import axios from "axios";
+import constants from "@/constants/constants";
+import { emit } from "./emitter";
 
 interface CacheItemType {
   data: any;
@@ -108,8 +110,13 @@ export class RequestHelper {
       }
 
       return data;
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error in makeRequest", error);
+      emit(constants.EVENTS.SHOW_NOTIFIER, {
+        message: error.message || "Something went wrong, please try again.",
+        type: constants.NOTIFIER_TYPES.ERROR,
+        id: Date.now(),
+      });
       throw error;
     }
   }

@@ -1,21 +1,29 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { Typography, Row, Col, Badge, Card } from "antd";
 import { useParams, useNavigate } from "react-router";
 
 import Loader from "@/components/Loader";
 import Breadcrumb from "@/components/Breadcrumb";
 import { useProject } from "@/query/project";
+import { AppContext } from "@/context/AppContext";
+import { ObjectType } from "@/types";
 
 const ProjectDetails = () => {
   const navigate = useNavigate();
   const { projectId } = useParams();
   const { mutate, isPending } = useProject();
   const [details, setDetails] = useState<any>({});
+  const { setState } = useContext(AppContext);
+
+  useEffect(
+    () => setState((old: ObjectType) => ({ ...old, viewName: details?.name || "Projects" })),
+    [details],
+  );
 
   useEffect(() => {
     if (projectId) {
       mutate(projectId, {
-        onSuccess: (data) =>setDetails(data),
+        onSuccess: (data) => setDetails(data),
       });
     }
   }, [projectId]);

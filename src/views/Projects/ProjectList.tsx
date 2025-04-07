@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import { Table, Badge, Row } from "antd";
 import { Link } from "react-router-dom";
 
 import Loader from "@/components/Loader";
 import { useProjects } from "@/query/project";
+import { AppContext } from "@/context/AppContext";
+import { ObjectType } from "@/types";
 
 // interface Project {
 //   key: string;
@@ -22,9 +24,7 @@ const columns = [
     key: "name",
     render: (name: any, dataItem: any) => (
       <Row align='middle'>
-        <Link to={`/projects/${dataItem._id}`}>
-          {name}
-        </Link>
+        <Link to={`/projects/${dataItem._id}`}>{name}</Link>
         {dataItem.public && <Badge count={"Public"} showZero color='#faad14' />}
       </Row>
     ),
@@ -54,8 +54,9 @@ const columns = [
 
 const ProjectList: React.FC = () => {
   const { data: apiData, isLoading } = useProjects();
+  const { setState } = useContext(AppContext);
 
-  console.dir(apiData);
+  useEffect(() => setState((old: ObjectType) => ({ ...old, viewName: "Projects" })), []);
 
   return (
     <div className='container mx-auto py-4'>

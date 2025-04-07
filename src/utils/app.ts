@@ -17,3 +17,5 @@ const URLS: any = {
 export const getURL = (key: string) => {
   return URLS[key];
 };
+
+export const setViewInAppState = name 

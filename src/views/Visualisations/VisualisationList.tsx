@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Table, Badge, Row } from "antd";
 import { Link } from "react-router-dom";
 import { useParams } from "react-router";
 
 import Loader from "@/components/Loader";
 import { useVisuals } from "@/query/project";
+import { ObjectType } from "@/types";
+import { AppContext } from "@/context/AppContext";
 
 const columns = [
   {
@@ -45,6 +47,9 @@ const VisualisationList: React.FC = () => {
   const { projectId = "" } = useParams();
   const { mutate, isPending } = useVisuals();
   const [visuals, setVisuals] = useState<any[]>([]);
+  const { setState } = useContext(AppContext);
+
+  useEffect(() => setState((old: ObjectType) => ({ ...old, viewName: "Visualisations" })), []);
 
   useEffect(() => {
     mutate(projectId, { onSuccess: (data) => setVisuals(data) });

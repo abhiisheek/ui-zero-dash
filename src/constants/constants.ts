@@ -2,6 +2,15 @@ import { AREA, ARC, BAR, LINE } from "vega-lite/build/src/mark";
 import { QUANTITATIVE, NOMINAL } from "vega-lite/build/src/type";
 
 export default {
+  EVENTS: {
+    SHOW_NOTIFIER: "SHOW_NOTIFIER",
+  },
+  NOTIFIER_TYPES: {
+    SUCCESS: "success",
+    ERROR: "error",
+    INFO: "info",
+    WARNING: "warning",
+  },
   UI_CONFIG: {
     NO_HEADER_ROUTES: ["/login"],
     NO_NAV_ROUTES: ["/login"],
