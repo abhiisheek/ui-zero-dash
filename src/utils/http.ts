@@ -113,7 +113,8 @@ export class RequestHelper {
     } catch (error: any) {
       console.error("Error in makeRequest", error);
       emit(constants.EVENTS.SHOW_NOTIFIER, {
-        message: error.message || "Something went wrong, please try again.",
+        message:
+          error?.response?.data?.message || error.message || "Something went wrong, please try again.",
         type: constants.NOTIFIER_TYPES.ERROR,
         id: Date.now(),
       });

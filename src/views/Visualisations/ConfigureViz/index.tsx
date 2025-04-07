@@ -3,7 +3,7 @@ import { FC, useEffect, useState, useCallback, useMemo, useContext } from "react
 import { Row, Col, Typography, Card, Collapse, Input, Button, Table } from "antd";
 import { FormItemLayout } from "antd/es/form/Form";
 import type { CheckboxChangeEvent, CollapseProps } from "antd";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import embed from "vega-embed";
 import Editor from "@monaco-editor/react";
 
@@ -12,18 +12,18 @@ import FormItem from "@/components/FormItem";
 import { ObjectType } from "@/types";
 import constants from "@/constants/constants";
 import { useTables, useTablesMetadata, useExecuteQuery } from "@/query/db";
-import { useProject } from "@/query/project";
+import { useProject, useCreateVisual, useGetVisual, useUpdateVisual } from "@/query/project";
 import Loader from "@/components/Loader";
 import Breadcrumb from "@/components/Breadcrumb";
 import { AppContext } from "@/context/AppContext";
-import VizCatalog from "./VizCatalog";
+import VizCatalog, { getVizDetailsFromType } from "./VizCatalog";
 import {
   generateSelectFieldOptionsFromDataset,
   isConfigurationComplete,
   getChartConfigFromConfiguredValues,
 } from "./helpers";
 import TableList from "./TableList";
-
+import { emit } from "@/utils/emitter";
 
 const {
   ANT: {
@@ -31,8 +31,9 @@ const {
   },
 } = constants;
 
-const ConfigureViz: FC<ObjectType> = () => {
-  const { projectId } = useParams();
+const ConfigureViz: FC<ObjectType> = ({ mode }) => {
+  const { projectId, vizId } = useParams();
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [userInput, setUserInput] = useState("");
   const [query, setQuery] = useState("");
@@ -46,6 +47,9 @@ const ConfigureViz: FC<ObjectType> = () => {
   const [selectFieldOptionsMap, setSelectFieldOptionsMap] = useState<ObjectType>({});
   const [selectedViz, setSelectedViz] = useState<ObjectType>({});
   const { mutate: getProjectDetails, isPending: isGetProjectDetailsPending } = useProject();
+  const { mutate: createVisual, isPending: isCreateVisualPending } = useCreateVisual();
+  const { mutate: updateVisual, isPending: isUpdateVisualPending } = useUpdateVisual();
+  const { mutate: getVisual, isPending: isGetVisualPending } = useGetVisual();
   const [projectDetails, setProjectDetails] = useState<any>({});
   const { setState } = useContext(AppContext);
 
@@ -280,11 +284,110 @@ const ConfigureViz: FC<ObjectType> = () => {
     },
   ];
 
+  const handleOnSave = useCallback(() => {
+    updateVisual(
+      {
+        projectId,
+        vizId,
+        datasource: {
+          dsType: "DB",
+          db: {
+            query,
+          },
+        },
+        config: {
+          type: selectedViz?.type,
+          propsData: vizPropsData,
+        },
+      },
+      {
+        onSuccess: () =>
+          emit(constants.EVENTS.SHOW_NOTIFIER, {
+            message: "Visualisation updated successfully",
+            type: constants.NOTIFIER_TYPES.SUCCESS,
+            id: Date.now(),
+          }),
+      },
+    );
+  }, [projectId, name, query, selectedViz, vizPropsData]);
+
+  const handleOnCreate = useCallback(() => {
+    createVisual(
+      {
+        projectId,
+        name,
+        datasource: {
+          dsType: "DB",
+          db: {
+            query,
+          },
+        },
+        config: {
+          type: selectedViz?.type,
+          propsData: vizPropsData,
+        },
+      },
+      {
+        onSuccess: (data) => {
+          emit(constants.EVENTS.SHOW_NOTIFIER, {
+            message: "Visualisation created successfully",
+            type: constants.NOTIFIER_TYPES.SUCCESS,
+            id: Date.now(),
+          });
+          navigate(`/projects/${projectId}/visualisations/${data._id}`);
+        },
+      },
+    );
+  }, [projectId, name, query, selectedViz, vizPropsData]);
+
+  useEffect(() => {
+    if (vizId && mode === constants.VIEW_MODES.EDIT) {
+      getVisual(
+        { projectId, vizId },
+        {
+          onSuccess: ([data]) => {
+            setName(data.name);
+            if (data?.datasource?.dsType === "DB") {
+              setQuery(data.datasource.db.query);
+
+              handleOnExecuteQuery();
+            }
+            setSelectedViz(getVizDetailsFromType(data?.config?.type));
+            setVizPropsData(data.config.propsData);
+          },
+        },
+      );
+    }
+  }, [vizId, mode, projectId, handleOnExecuteQuery]);
+
+  const modeSpecificConfig = useMemo(
+    () =>
+      mode === constants.VIEW_MODES.EDIT
+        ? {
+            collapseActiveKeys: ["datasource", "visual"],
+            breadcrumb: [{ title: "Edit", path: `/Edit` }],
+            disableName: true,
+            saveBtnLabel: "Update",
+            onSave: handleOnSave,
+          }
+        : {
+            collapseActiveKeys: ["datasource"],
+            breadcrumb: [{ title: "Create", path: `/create` }],
+            disableName: false,
+            saveBtnLabel: "Create",
+            onSave: handleOnCreate,
+          },
+    [mode, handleOnCreate, handleOnSave],
+  );
+
   return (
     <Card className='w-full'>
       {(isGetTablesMetadataPending ||
         isGetTablesPending ||
         isExecuteQueryPending ||
+        isCreateVisualPending ||
+        isUpdateVisualPending ||
+        isGetVisualPending ||
         isGetProjectDetailsPending) && <Loader fullScreen />}
       <Row gutter={[16, 16]}>
         <Col span={24}>
@@ -294,17 +397,30 @@ const ConfigureViz: FC<ObjectType> = () => {
               { title: "Projects", path: "/projects" },
               { title: projectDetails?.name || "Project Name", path: `/${projectId}` },
               { title: "Visualisations", path: `/visualisations` },
-              { title: "Create", path: `/create` },
+              ...modeSpecificConfig.breadcrumb,
             ]}
           />
         </Col>
-        <Col span={8}>
-          <FormItem layout={VERTICAL as FormItemLayout} label='Visualisation Name' required>
-            <Input value={name} onChange={(evt) => setName(evt.target.value)} />
-          </FormItem>
+        <Col span={24}>
+          <Row justify='space-between' align='middle'>
+            <Col span={8}>
+              <FormItem layout={VERTICAL as FormItemLayout} label='Visualisation Name' required>
+                <Input
+                  value={name}
+                  onChange={(evt) => setName(evt.target.value)}
+                  disabled={modeSpecificConfig.disableName}
+                />
+              </FormItem>
+            </Col>
+            <Col>
+              <Button type='primary' onClick={modeSpecificConfig.onSave} disabled={!name}>
+                {modeSpecificConfig.saveBtnLabel}
+              </Button>
+            </Col>
+          </Row>
         </Col>
         <Col span={24}>
-          <Collapse items={items} defaultActiveKey={["datasource"]} />
+          <Collapse items={items} defaultActiveKey={modeSpecificConfig.collapseActiveKeys} />
         </Col>
       </Row>
     </Card>

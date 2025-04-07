@@ -5,6 +5,10 @@ export default {
   EVENTS: {
     SHOW_NOTIFIER: "SHOW_NOTIFIER",
   },
+  VIEW_MODES: {
+    CREATE: "create",
+    EDIT: "edit",
+  },
   NOTIFIER_TYPES: {
     SUCCESS: "success",
     ERROR: "error",

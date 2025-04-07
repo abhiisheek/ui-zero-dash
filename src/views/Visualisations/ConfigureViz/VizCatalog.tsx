@@ -15,13 +15,15 @@ import lineChart from "./configs/lineChart";
 import areaChart from "./configs/areaChart";
 import pieChart from "./configs/pieChart";
 
-const VIZ_MAP = {
-  bar: { icon: bar, config: barChart, label: "Bar Chart" },
-  line: { icon: line, config: lineChart, label: "Line Chart" },
-  area: { icon: area, config: areaChart, label: "Area Chart" },
-  pie: { icon: pie, config: pieChart, label: "Pie Chart" },
-  donut: { icon: donut, config: pieChart, label: "Donut Chart" },
+const VIZ_MAP: ObjectType = {
+  bar: { icon: bar, config: barChart, label: "Bar Chart", type: "bar" },
+  line: { icon: line, config: lineChart, label: "Line Chart", type: "line" },
+  area: { icon: area, config: areaChart, label: "Area Chart", type: "area" },
+  pie: { icon: pie, config: pieChart, label: "Pie Chart", type: "pie" },
+  donut: { icon: donut, config: pieChart, label: "Donut Chart", type: "donut" },
 };
+
+export const getVizDetailsFromType = (type: string) => VIZ_MAP[type] || VIZ_MAP.bar;
 
 const VizCatalog: FC<ObjectType> = ({ selectedViz, onSelectedVizChange }) => (
   <Row gutter={[16, 16]}>

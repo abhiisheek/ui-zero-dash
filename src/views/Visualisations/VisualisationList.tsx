@@ -15,7 +15,7 @@ const columns = [
     key: "name",
     render: (name: any, dataItem: any) => (
       <Row align='middle'>
-        <Link to={`/projects/${dataItem._id}`}>{name}</Link>
+        <Link to={`/projects/${dataItem.projectId}/visualisations/${dataItem._id}`}>{name}</Link>
         {dataItem.public && <Badge count={"Public"} showZero color='#faad14' />}
       </Row>
     ),

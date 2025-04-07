@@ -2,6 +2,7 @@ import { FC, lazy, Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router";
 
 import Loader from "@/components/Loader";
+import constants from "./constants/constants";
 
 // const Home = lazy(() => import("@/views/Home"));
 const Projects = lazy(() => import("@/views/Projects"));
@@ -16,7 +17,14 @@ const Router: FC = () => {
     <Suspense fallback={<Loader fullScreen />}>
       <Routes>
         <Route path='/projects' element={<Projects />} />
-        <Route path='/projects/:projectId/visualisations/create' element={<ConfigureViz />} />
+        <Route
+          path='/projects/:projectId/visualisations/create'
+          element={<ConfigureViz mode={constants.VIEW_MODES.CREATE} />}
+        />
+        <Route
+          path='/projects/:projectId/visualisations/:vizId'
+          element={<ConfigureViz mode={constants.VIEW_MODES.EDIT} />}
+        />
         <Route path='/projects/:projectId/visualisations' element={<Visualisations />} />
         <Route path='/projects/:projectId' element={<ProjectDetails />} />
         <Route path='/login' element={<Login />} />
