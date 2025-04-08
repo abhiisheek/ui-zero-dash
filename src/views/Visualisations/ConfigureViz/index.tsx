@@ -16,12 +16,13 @@ import { useProject, useCreateVisual, useGetVisual, useUpdateVisual } from "@/qu
 import Loader from "@/components/Loader";
 import Breadcrumb from "@/components/Breadcrumb";
 import { AppContext } from "@/context/AppContext";
-import VizCatalog, { getVizDetailsFromType } from "./VizCatalog";
+import VizCatalog from "./VizCatalog";
+import { getVizDetailsFromType } from "@/components/Visualisation/configs";
 import {
   generateSelectFieldOptionsFromDataset,
   isConfigurationComplete,
   getChartConfigFromConfiguredValues,
-} from "./helpers";
+} from "@/components/Visualisation/helpers";
 import TableList from "./TableList";
 import { emit } from "@/utils/emitter";
 
@@ -114,9 +115,9 @@ const ConfigureViz: FC<ObjectType> = ({ mode }) => {
     }
   }, [data, selectedViz, vizPropsData]);
 
-  const handleOnExecuteQuery = useCallback(() => {
-    if (query) {
-      executeQuerry(query, {
+  const handleOnExecuteQuery = useCallback((sqlQuery: string) => {
+    if (sqlQuery) {
+      executeQuerry(sqlQuery, {
         onSuccess: (data) => {
           const [headers, ...rows] = data;
           const columns = headers.map((header: string) => ({
@@ -138,7 +139,7 @@ const ConfigureViz: FC<ObjectType> = ({ mode }) => {
         },
       });
     }
-  }, [query]);
+  }, []);
 
   const handleOnTableSelectChange = useCallback(
     (e: CheckboxChangeEvent) =>
@@ -219,7 +220,11 @@ const ConfigureViz: FC<ObjectType> = ({ mode }) => {
                 </FormItem>
               </Col>
               <Col span={24} className='!flex justify-end'>
-                <Button type='primary' onClick={handleOnExecuteQuery} disabled={!query}>
+                <Button
+                  type='primary'
+                  onClick={() => handleOnExecuteQuery(query)}
+                  disabled={!query}
+                >
                   Execute
                 </Button>
               </Col>
@@ -350,7 +355,7 @@ const ConfigureViz: FC<ObjectType> = ({ mode }) => {
             if (data?.datasource?.dsType === "DB") {
               setQuery(data.datasource.db.query);
 
-              handleOnExecuteQuery();
+              handleOnExecuteQuery(data.datasource.db.query);
             }
             setSelectedViz(getVizDetailsFromType(data?.config?.type));
             setVizPropsData(data.config.propsData);

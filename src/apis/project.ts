@@ -67,3 +67,12 @@ export const getViz = async ({ projectId, vizId }: ObjectType) => {
 
   return response;
 };
+
+export const getDashboards = async (projectId: string) => {
+  const response = await RequestHelper.makeRequest({
+    url: `${getURL("project")}/${projectId}/dashboard/all`,
+    method: "GET",
+  });
+
+  return response;
+};

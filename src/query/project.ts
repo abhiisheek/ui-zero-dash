@@ -8,6 +8,7 @@ import {
   createViz,
   updateViz,
   getViz,
+  getDashboards,
 } from "@/apis/project";
 
 export const useCreateProject = () => useMutation({ mutationFn: createProject });
@@ -23,3 +24,5 @@ export const useCreateVisual = () => useMutation({ mutationFn: createViz });
 export const useUpdateVisual = () => useMutation({ mutationFn: updateViz });
 
 export const useGetVisual = () => useMutation({ mutationFn: getViz });
+
+export const useDashboards = () => useMutation({ mutationFn: getDashboards });
