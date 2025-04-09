@@ -34,3 +34,7 @@ export const executeQuery = async (query: string) => {
 
   return response;
 };
+
+export const executeSingleQuery = async ({ queryKey }: { queryKey: any[] }) => {
+  return executeQuery(queryKey[1]);
+};

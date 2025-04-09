@@ -10,8 +10,9 @@ const Login = lazy(() => import("@/views/Login"));
 const About = lazy(() => import("@/views/About"));
 const ProjectDetails = lazy(() => import("@/views/Projects/ProjectDetails"));
 const Visualisations = lazy(() => import("@/views/Visualisations"));
-const Dashboards = lazy(() => import("@/views/Dashboards"));
 const ConfigureViz = lazy(() => import("@/views/Visualisations/ConfigureViz"));
+const Dashboards = lazy(() => import("@/views/Dashboards"));
+const ConfigureDashboards = lazy(() => import("@/views/Dashboards/Configure"));
 
 const Router: FC = () => {
   return (
@@ -27,10 +28,10 @@ const Router: FC = () => {
           element={<ConfigureViz mode={constants.VIEW_MODES.EDIT} />}
         />
         <Route path='/projects/:projectId/visualisations' element={<Visualisations />} />
-        {/* <Route
+        <Route
           path='/projects/:projectId/dashboards/create'
-          element={<ConfigureViz mode={constants.VIEW_MODES.CREATE} />}
-        /> */}
+          element={<ConfigureDashboards mode={constants.VIEW_MODES.CREATE} />}
+        />
         {/* <Route
           path='/projects/:projectId/dashboards/:dashboardId'
           element={<ConfigureViz mode={constants.VIEW_MODES.EDIT} />}
