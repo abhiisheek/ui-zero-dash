@@ -32,10 +32,10 @@ const Router: FC = () => {
           path='/projects/:projectId/dashboards/create'
           element={<ConfigureDashboards mode={constants.VIEW_MODES.CREATE} />}
         />
-        {/* <Route
+        <Route
           path='/projects/:projectId/dashboards/:dashboardId'
-          element={<ConfigureViz mode={constants.VIEW_MODES.EDIT} />}
-        /> */}
+          element={<ConfigureDashboards mode={constants.VIEW_MODES.EDIT} />}
+        />
         <Route path='/projects/:projectId/dashboards' element={<Dashboards />} />
         <Route path='/projects/:projectId' element={<ProjectDetails />} />
         <Route path='/login' element={<Login />} />

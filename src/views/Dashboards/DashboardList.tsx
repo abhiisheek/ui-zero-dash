@@ -21,9 +21,10 @@ const columns = [
     ),
   },
   {
-    title: "Description",
-    dataIndex: "description",
-    key: "description",
+    title: "Status",
+    dataIndex: "published",
+    key: "published",
+    render: (published: boolean) => (published ? "Published" : "Draft"),
   },
   {
     title: "Created By",

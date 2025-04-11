@@ -86,3 +86,32 @@ export const createDashboard = async ({ projectId, ...payload }: ObjectType) => 
 
   return response;
 };
+
+export const getDashboard = async ({ projectId, dashboardId }: ObjectType) => {
+  const response = await RequestHelper.makeRequest({
+    url: `${getURL("project")}/${projectId}/dashboard/${dashboardId}`,
+    method: "GET",
+  });
+
+  return response;
+};
+
+export const updateDashboard = async ({ projectId, dashboardId, ...payload }: ObjectType) => {
+  const response = await RequestHelper.makeRequest({
+    url: `${getURL("project")}/${projectId}/dashboard/${dashboardId}`,
+    method: "PUT",
+    reqParams: payload,
+  });
+
+  return response;
+};
+
+export const publishDashboard = async ({ projectId, dashboardId, ...payload }: ObjectType) => {
+  const response = await RequestHelper.makeRequest({
+    url: `${getURL("project")}/${projectId}/dashboard/${dashboardId}/publish`,
+    method: "PUT",
+    reqParams: payload,
+  });
+
+  return response;
+};
