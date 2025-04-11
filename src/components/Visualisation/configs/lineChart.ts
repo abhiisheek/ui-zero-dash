@@ -16,7 +16,8 @@ export default {
       tooltip: true,
     },
     width: "container",
-    height: 400,
+    autosize: { type: "fit" },
+    padding: 5,
   },
   meta: [{ ...CATEGORY_FIELD }, { ...VALUE_FIELD }, { ...VALUE_AGGREGATION_FIELD }],
 };

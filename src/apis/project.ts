@@ -76,3 +76,13 @@ export const getDashboards = async (projectId: string) => {
 
   return response;
 };
+
+export const createDashboard = async ({ projectId, ...payload }: ObjectType) => {
+  const response = await RequestHelper.makeRequest({
+    url: `${getURL("project")}/${projectId}/dashboard/create`,
+    method: "POST",
+    reqParams: payload,
+  });
+
+  return response;
+};

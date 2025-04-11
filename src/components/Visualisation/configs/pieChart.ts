@@ -19,7 +19,8 @@ export default {
       tooltip: true,
     },
     width: "container",
-    height: 400,
+    autosize: { type: "fit" },
+    padding: 5,
   },
   meta: [
     { ...CATEGORY_FIELD, key: "color" },

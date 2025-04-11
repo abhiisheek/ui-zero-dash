@@ -2,18 +2,21 @@ import { FC, useCallback, useContext, useEffect, useMemo, useState } from "react
 
 import { Row, Col, Input, Card, Button } from "antd";
 import { useNavigate, useParams } from "react-router";
+import { nanoid } from "nanoid";
 
 import { ObjectType } from "@/types";
 import constants from "@/constants/constants";
 import Breadcrumb from "@/components/Breadcrumb";
 import FormItem from "@/components/FormItem";
 import { FormItemLayout } from "antd/es/form/Form";
-import { useProject, useVisuals } from "@/query/project";
+import { useProject, useVisuals, useCreateDashboard } from "@/query/project";
 import { useExecuteQueries } from "@/query/db";
 import { AppContext } from "@/context/AppContext";
 import Loader from "@/components/Loader";
 import { getVizDetailsFromType } from "@/components/Visualisation/configs";
 import VisualCard from "@/components/Visualisation/VisualCard";
+import DashboardCanvas from "@/components/DashboardCanvas";
+import { emit } from "@/utils/emitter";
 
 const {
   ANT: {
@@ -30,13 +33,13 @@ const CreateDashboard: FC<ObjectType> = ({ mode }) => {
   const { mutate: getProjectDetails, isPending: isGetProjectDetailsPending } = useProject();
   const { setState } = useContext(AppContext);
   const { mutate: getAllViz, isPending: isGetAllVizPending } = useVisuals();
+  const { mutate: createDashboard, isPending: isCreateDashboardPending } = useCreateDashboard();
   const [vizList, setVizList] = useState<any>([]);
   const [vizAddedToDashboard, setVizAddedToDashboard] = useState<any>([]);
   const executeQueries = useExecuteQueries(
     vizAddedToDashboard.map((viz: ObjectType) => viz?.datasource?.db?.query),
   );
-
-  console.log("AB::", executeQueries);
+  const [gridLayouts, setGridLayouts] = useState<any>({ lg: [] });
 
   useEffect(() => setState((old: ObjectType) => ({ ...old, viewName: "Create Dashboard" })), []);
 
@@ -48,6 +51,33 @@ const CreateDashboard: FC<ObjectType> = ({ mode }) => {
       getAllViz(projectId, { onSuccess: (data) => setVizList(data) });
     }
   }, [projectId]);
+
+  const handleOnCreate = useCallback(() => {
+    const payload = {
+      projectId,
+      name,
+      config: {
+        layout: gridLayouts,
+        viz: vizAddedToDashboard.map((viz: ObjectType) => ({
+          vizId: viz._id,
+          gridItemId: viz.gridItemId,
+        })),
+      },
+    };
+
+    createDashboard(payload, {
+      onSuccess: (data: ObjectType) => {
+        emit(constants.EVENTS.SHOW_NOTIFIER, {
+          message: "Dashboard created successfully",
+          type: constants.NOTIFIER_TYPES.SUCCESS,
+          id: Date.now(),
+        });
+        if (data) {
+          navigate(`/projects/${projectId}/dashboards/${data._id}`);
+        }
+      },
+    });
+  }, [name, gridLayouts, vizAddedToDashboard, projectId]);
 
   const modeSpecificConfig = useMemo(
     () =>
@@ -62,26 +92,51 @@ const CreateDashboard: FC<ObjectType> = ({ mode }) => {
             breadcrumb: [{ title: "Create", path: `/create` }],
             disableName: false,
             saveBtnLabel: "Create",
-            onSave: () => {},
+            onSave: handleOnCreate,
           },
-    [mode],
+    [mode, handleOnCreate],
   );
 
   const handleOnDrag = useCallback((evt: any, viz: ObjectType) => {
     evt.dataTransfer.setData("newViz", JSON.stringify(viz));
   }, []);
 
-  const handleOnDrop = useCallback((evt: any) => {
+  const handleOnDrop = useCallback((layout: any, droppingItem: any, evt: any) => {
     evt.preventDefault();
 
     const newViz = JSON.parse(evt.dataTransfer.getData("newViz"));
+    const gridItemId = nanoid(8);
 
-    setVizAddedToDashboard((old: []) => [...old, newViz]);
+    setVizAddedToDashboard((old: []) => [...old, { ...newViz, gridItemId }]);
+    setGridLayouts((old: any) => ({
+      ...old,
+      lg: layout.map((item: any) => {
+        if (item.i === droppingItem.i) {
+          return {
+            ...droppingItem,
+            ...constants.GRID_LAYOUT.DEFAULT_LAYOUT_PROPS,
+            i: gridItemId,
+          };
+        } else {
+          return { ...item };
+        }
+      }),
+    }));
+  }, []);
+
+  const handleOnLayoutChange = useCallback((currentLayout: any) => {
+    setGridLayouts((old: any) => ({ ...old, lg: currentLayout }));
+  }, []);
+
+  const handleOnResizeStop = useCallback(() => {
+    emit(constants.EVENTS.VIZ_RESIZE, {});
   }, []);
 
   return (
     <>
-      {(isGetProjectDetailsPending || isGetAllVizPending) && <Loader fullScreen />}
+      {(isGetProjectDetailsPending || isGetAllVizPending || isCreateDashboardPending) && (
+        <Loader fullScreen />
+      )}
       <Row gutter={[16, 16]}>
         <Col span={24}>
           <Breadcrumb
@@ -106,7 +161,11 @@ const CreateDashboard: FC<ObjectType> = ({ mode }) => {
               </FormItem>
             </Col>
             <Col>
-              <Button type='primary' onClick={modeSpecificConfig.onSave} disabled={!name}>
+              <Button
+                type='primary'
+                onClick={modeSpecificConfig.onSave}
+                disabled={!name || !vizAddedToDashboard || !vizAddedToDashboard.length}
+              >
                 {modeSpecificConfig.saveBtnLabel}
               </Button>
             </Col>
@@ -141,25 +200,35 @@ const CreateDashboard: FC<ObjectType> = ({ mode }) => {
           </Card>
         </Col>
         <Col span={24}>
-          <Card
-            className='min-h-[400px]'
-            onDragOver={(evt) => evt.preventDefault()}
+          <DashboardCanvas
+            layouts={gridLayouts}
             onDrop={handleOnDrop}
+            onLayoutChange={handleOnLayoutChange}
+            onResizeStop={handleOnResizeStop}
+            isDroppable={true}
+            isResizable={true}
+            measureBeforeMount={false}
+            rowHeight={50}
+            useCSSTransforms={false}
+            className='react-grid-layout min-h-[400px] bg-white border-[1px] border-solid  border-gray-100 rounded-[4px]'
           >
-            <Row gutter={16}>
-              {vizAddedToDashboard.map((viz: ObjectType, index: number) => {
-                return (
+            {vizAddedToDashboard.map((viz: ObjectType, index: number) => {
+              return (
+                <div
+                  key={viz.gridItemId}
+                  className='bg-white shadow-md shadow-lg p-[16px] rounded-[4px]'
+                >
                   <VisualCard
-                    key={viz._id}
-                    id={viz._id}
+                    id={viz.gridItemId}
                     config={viz.config}
                     loading={executeQueries[index]?.isPending}
                     data={executeQueries[index]?.data}
+                    name={viz.name}
                   />
-                );
-              })}
-            </Row>
-          </Card>
+                </div>
+              );
+            })}
+          </DashboardCanvas>
         </Col>
       </Row>
     </>
