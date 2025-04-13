@@ -10,6 +10,10 @@ export default {
     CREATE: "create",
     EDIT: "edit",
   },
+  PERSONAS: {
+    ADMIN: "admin",
+    USER: "user",
+  },
   NOTIFIER_TYPES: {
     SUCCESS: "success",
     ERROR: "error",

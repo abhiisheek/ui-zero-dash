@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useState, FC } from "react";
 import { Row, Col, Button } from "antd";
 
 import CreateProject from "./CreateProject";
 import ProjectList from "./ProjectList";
 import Breadcrumb from "@/components/Breadcrumb";
+import { ObjectType } from "@/types";
+import constants from "@/constants/constants";
 
-const Projects = () => {
+const Projects: FC<ObjectType> = ({ persona = constants.PERSONAS.ADMIN }) => {
   const [openCreateProject, setOpenCreateProject] = useState(false);
 
   const handleOnCreateProject = () => {
@@ -34,7 +36,7 @@ const Projects = () => {
         </Row>
         <Row>
           <Col span={24}>
-            <ProjectList />
+            <ProjectList persona={persona} />
           </Col>
         </Row>
       </Col>

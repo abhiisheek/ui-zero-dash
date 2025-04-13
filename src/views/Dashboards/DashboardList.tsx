@@ -7,6 +7,7 @@ import Loader from "@/components/Loader";
 import { useDashboards } from "@/query/project";
 import { ObjectType } from "@/types";
 import { AppContext } from "@/context/AppContext";
+import constants from "@/constants/constants";
 
 const columns = [
   {
@@ -44,22 +45,28 @@ const columns = [
   },
 ];
 
-const DashboardList: React.FC = () => {
+const DashboardList: React.FC<ObjectType> = ({ persona }) => {
   const { projectId = "" } = useParams();
   const { mutate, isPending } = useDashboards();
-  const [visuals, setVisuals] = useState<any[]>([]);
+  const [dashboards, setDashboards] = useState<any[]>([]);
   const { setState } = useContext(AppContext);
 
   useEffect(() => setState((old: ObjectType) => ({ ...old, viewName: "Dashboards" })), []);
 
   useEffect(() => {
-    mutate(projectId, { onSuccess: (data) => setVisuals(data) });
-  }, [mutate, projectId]);
+    mutate(projectId, { onSuccess: (data) => {
+      if(persona === constants.PERSONAS.USER) {
+        setDashboards(data.filter((dashboard: ObjectType) => dashboard.published));
+      } else {
+        setDashboards(data);
+      }
+    } });
+  }, [mutate, projectId, persona]);
 
   return (
     <div className='container mx-auto py-4'>
       {isPending && <Loader fullScreen />}
-      <Table dataSource={visuals} columns={columns} />
+      <Table dataSource={dashboards} columns={columns} />
     </div>
   );
 };

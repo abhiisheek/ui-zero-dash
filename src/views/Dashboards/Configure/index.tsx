@@ -1,7 +1,7 @@
 import { FC, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 import { Row, Col, Input, Card, Button } from "antd";
-import { data, useNavigate, useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { nanoid } from "nanoid";
 
 import { ObjectType } from "@/types";
@@ -25,7 +25,6 @@ import { getVizDetailsFromType } from "@/components/Visualisation/configs";
 import VisualCard from "@/components/Visualisation/VisualCard";
 import DashboardCanvas from "@/components/DashboardCanvas";
 import { emit } from "@/utils/emitter";
-import { set } from "lodash";
 
 const {
   ANT: {

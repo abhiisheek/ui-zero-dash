@@ -18,4 +18,6 @@ export const getURL = (key: string) => {
   return URLS[key];
 };
 
+export const getUserRoles = () => ["project-2-admin", "project-1-user"]
+
 export const setViewInAppState = name 

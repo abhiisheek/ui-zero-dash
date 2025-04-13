@@ -13,30 +13,45 @@ const Visualisations = lazy(() => import("@/views/Visualisations"));
 const ConfigureViz = lazy(() => import("@/views/Visualisations/ConfigureViz"));
 const Dashboards = lazy(() => import("@/views/Dashboards"));
 const ConfigureDashboards = lazy(() => import("@/views/Dashboards/Configure"));
+const ViewDashboard = lazy(() => import("@/views/Dashboards/View"));
+
+const {
+  PERSONAS: { ADMIN, USER },
+  VIEW_MODES: { EDIT, CREATE },
+} = constants;
 
 const Router: FC = () => {
   return (
     <Suspense fallback={<Loader fullScreen />}>
       <Routes>
-        <Route path='/projects' element={<Projects />} />
+        <Route path='/projects' element={<Projects persona={ADMIN} />} />
+        <Route path='/user/projects' element={<Projects persona={USER} />} />
         <Route
           path='/projects/:projectId/visualisations/create'
-          element={<ConfigureViz mode={constants.VIEW_MODES.CREATE} />}
+          element={<ConfigureViz mode={CREATE} />}
         />
         <Route
           path='/projects/:projectId/visualisations/:vizId'
-          element={<ConfigureViz mode={constants.VIEW_MODES.EDIT} />}
+          element={<ConfigureViz mode={EDIT} />}
         />
         <Route path='/projects/:projectId/visualisations' element={<Visualisations />} />
         <Route
           path='/projects/:projectId/dashboards/create'
-          element={<ConfigureDashboards mode={constants.VIEW_MODES.CREATE} />}
+          element={<ConfigureDashboards mode={CREATE} />}
         />
         <Route
           path='/projects/:projectId/dashboards/:dashboardId'
-          element={<ConfigureDashboards mode={constants.VIEW_MODES.EDIT} />}
+          element={<ConfigureDashboards mode={EDIT} />}
         />
-        <Route path='/projects/:projectId/dashboards' element={<Dashboards />} />
+        <Route
+          path='/user/projects/:projectId/dashboards/:dashboardId'
+          element={<ViewDashboard />}
+        />
+        <Route path='/projects/:projectId/dashboards' element={<Dashboards persona={ADMIN} />} />
+        <Route
+          path='/user/projects/:projectId/dashboards'
+          element={<Dashboards persona={USER} />}
+        />
         <Route path='/projects/:projectId' element={<ProjectDetails />} />
         <Route path='/login' element={<Login />} />
         <Route path='/about' element={<About />} />

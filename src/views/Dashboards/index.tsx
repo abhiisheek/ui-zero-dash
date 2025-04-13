@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, FC } from "react";
 import { Row, Col, Button } from "antd";
 import { useParams, useNavigate, useLocation } from "react-router";
 
@@ -9,8 +9,10 @@ import { ProjectContext } from "@/context/ProjectContext";
 import Loader from "@/components/Loader";
 
 import DashboardList from "./DashboardList";
+import { ObjectType } from "@/types";
+import constants from "@/constants/constants";
 
-const Dashboards = () => {
+const Dashboards: FC<ObjectType> = ({persona = constants.PERSONAS.ADMIN}) => {
   const { projectId } = useParams();
   const { pathname } = useLocation();
   const navigate = useNavigate();
@@ -51,7 +53,7 @@ const Dashboards = () => {
           </Row>
           <Row>
             <Col span={24}>
-              <DashboardList />
+              <DashboardList persona={persona} />
             </Col>
           </Row>
         </Col>
