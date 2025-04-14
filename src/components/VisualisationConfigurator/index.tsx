@@ -7,12 +7,13 @@ import { ObjectType } from "@/types";
 import FormItem from "../FormItem";
 import BooleanField from "./BooleanField";
 
-import { getBooleanProps, getSelectProps, getInputProps } from "./metaToPropMapper";
+import { getBooleanProps, getSelectProps, getInputProps, getTableColumnFieldProps } from "./metaToPropMapper";
 import { FormItemLayout } from "antd/es/form/Form";
+import TableColumnField from "./TableColumnField";
 
 const {
   VIZ_CONFIG: {
-    FIELD_TYPES: { TEXT, NUMBER, BOOLEAN, SELECT },
+    FIELD_TYPES: { TEXT, NUMBER, BOOLEAN, SELECT, TABLE_COLUMN },
   },
   ANT: {
     LAYOUT: { VERTICAL },
@@ -24,6 +25,8 @@ const FIELD_TYPE_MAP = {
   [NUMBER]: { Component: InputNumber, propGenerator: getInputProps },
   [SELECT]: { Component: Select, propGenerator: getSelectProps },
   [BOOLEAN]: { Component: BooleanField, propGenerator: getBooleanProps },
+  [BOOLEAN]: { Component: BooleanField, propGenerator: getBooleanProps },
+  [TABLE_COLUMN]: { Component: TableColumnField, propGenerator: getTableColumnFieldProps },
 };
 
 interface ConfiguratorProps {
@@ -47,6 +50,7 @@ const Configurator: FC<ConfiguratorProps> = ({ setValue, props, options, data })
       [NUMBER]: handleOnInputChange,
       [SELECT]: handleOnChange,
       [BOOLEAN]: handleOnChange,
+      [TABLE_COLUMN]: handleOnChange,
     }),
     [],
   );

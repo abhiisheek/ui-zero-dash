@@ -25,10 +25,15 @@ import {
 } from "@/components/Visualisation/helpers";
 import TableList from "./TableList";
 import { emit } from "@/utils/emitter";
+import TableComponent from "@/components/Visualisation/Table";
 
 const {
   ANT: {
     LAYOUT: { VERTICAL },
+  },
+  VIZ_CONFIG: {
+    FIELD_TYPES: { TABLE_COLUMN },
+    CHART_TYPES: { TABLE },
   },
 } = constants;
 
@@ -72,10 +77,36 @@ const ConfigureViz: FC<ObjectType> = ({ mode }) => {
     [],
   );
 
-  const handleOnSelectedVizChange = useCallback((viz: ObjectType) => {
-    setSelectedViz(viz);
-    setVizPropsData({});
-  }, []);
+  const handleOnSelectedVizChange = useCallback(
+    (viz: ObjectType) => {
+      if (viz.type === TABLE) {
+        const propsDefaultData: any = {};
+        const meta: any = [];
+        queryResults?.columns?.forEach((item: any) => {
+          propsDefaultData[item.key] = { name: item.key };
+
+          meta.push({
+            type: TABLE_COLUMN,
+            key: item.key,
+          });
+        });
+
+        setSelectedViz({
+          ...viz,
+          config: {
+            ...viz.config,
+            meta,
+          },
+        });
+
+        setVizPropsData(propsDefaultData);
+      } else {
+        setSelectedViz(viz);
+        setVizPropsData({});
+      }
+    },
+    [queryResults],
+  );
 
   const data = useMemo(() => {
     if (queryResults?.dataSource) {
@@ -104,7 +135,11 @@ const ConfigureViz: FC<ObjectType> = ({ mode }) => {
   }, [selectedViz, data]);
 
   useEffect(() => {
-    if (selectedViz?.config && isConfigurationComplete(vizPropsData, selectedViz.config?.meta)) {
+    if (
+      selectedViz?.type !== TABLE &&
+      selectedViz?.config &&
+      isConfigurationComplete(vizPropsData, selectedViz.config?.meta)
+    ) {
       let vizProps = selectedViz.config?.defaultProps;
 
       vizProps.data = data;
@@ -273,7 +308,11 @@ const ConfigureViz: FC<ObjectType> = ({ mode }) => {
           <Col span={12}>
             <Card className='min-h-full'>
               <Typography.Text strong>Preview</Typography.Text>
-              <div id='viz' className='py-[24px] w-full h-full' />
+              {selectedViz?.type === TABLE ? (
+                <TableComponent propsData={vizPropsData} data={queryResults?.dataSource} />
+              ) : (
+                <div id='viz' className='py-[24px] w-full h-full' />
+              )}
             </Card>
           </Col>
           <Col span={6}>
@@ -357,7 +396,28 @@ const ConfigureViz: FC<ObjectType> = ({ mode }) => {
 
               handleOnExecuteQuery(data.datasource.db.query);
             }
-            setSelectedViz(getVizDetailsFromType(data?.config?.type));
+
+            if (data?.config?.type === TABLE) {
+              const viz = getVizDetailsFromType(data?.config?.type);
+              const meta: any = [];
+
+              Object.keys(data.config.propsData).forEach((colKey: string) => {
+                meta.push({
+                  type: TABLE_COLUMN,
+                  key: colKey,
+                });
+              });
+
+              setSelectedViz({
+                ...viz,
+                config: {
+                  ...viz.config,
+                  meta,
+                },
+              });
+            } else {
+              setSelectedViz(getVizDetailsFromType(data?.config?.type));
+            }
             setVizPropsData(data.config.propsData);
           },
         },

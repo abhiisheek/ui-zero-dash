@@ -11,7 +11,7 @@ const VizCatalog: FC<ObjectType> = ({ selectedViz, onSelectedVizChange }) => (
       <Typography.Text strong>Visualisation Types Catalog</Typography.Text>
     </Col>
     {Object.values(VIZ_MAP).map((item: ObjectType) => (
-      <Col span={24}>
+      <Col span={12} key={item.label}>
         <Card
           onClick={() => onSelectedVizChange(item)}
           className={

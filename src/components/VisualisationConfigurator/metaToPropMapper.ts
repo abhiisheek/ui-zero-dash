@@ -19,3 +19,7 @@ export const getBooleanProps = (meta: any) => ({
   id: meta?.key,
   defaultValue: meta?.defaultValue,
 });
+
+export const getTableColumnFieldProps = (meta: any) => ({
+  id: meta?.key,
+});

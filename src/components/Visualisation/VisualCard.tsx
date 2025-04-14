@@ -1,4 +1,4 @@
-import { FC, useEffect, memo, useCallback } from "react";
+import { FC, useEffect, memo, useCallback, useMemo } from "react";
 
 import { Typography, Divider } from "antd";
 import embed from "vega-embed";
@@ -11,16 +11,21 @@ import { convertToVegaLiteData } from "@/utils/vega";
 import { convertQueryCSVResultsToJSON } from "@/utils/db";
 import { on } from "@/utils/emitter";
 import constants from "@/constants/constants";
+import Table from "./Table";
 
 const VisualCard: FC<ObjectType> = ({ name, loading, config, id, data }) => {
-  const renderViz = useCallback(() => {
-    if (config && data) {
-      const vizDetails = getVizDetailsFromType(config.type);
+  const jsonData = useMemo(() => convertQueryCSVResultsToJSON(data), [data]);
 
-      if (isConfigurationComplete(config.propsData, vizDetails.config?.meta)) {
+  const renderViz = useCallback(() => {
+    if (config && jsonData) {
+      const vizDetails = getVizDetailsFromType(config.type);
+      if (
+        config.type !== constants.VIZ_CONFIG.CHART_TYPES.TABLE &&
+        isConfigurationComplete(config.propsData, vizDetails.config?.meta)
+      ) {
         let vizProps = vizDetails.config?.defaultProps;
 
-        vizProps.data = convertToVegaLiteData(convertQueryCSVResultsToJSON(data));
+        vizProps.data = convertToVegaLiteData(jsonData);
 
         const getConfig = vizDetails.config?.configGenerator || getChartConfigFromConfiguredValues;
         const chartConfig = getConfig(vizProps, config.propsData, vizDetails.config?.meta);
@@ -30,7 +35,7 @@ const VisualCard: FC<ObjectType> = ({ name, loading, config, id, data }) => {
         embed(document.getElementById(id) as HTMLDivElement, chartConfig);
       }
     }
-  }, [id, data, config]);
+  }, [id, jsonData, config]);
 
   useEffect(() => {
     renderViz();
@@ -40,10 +45,16 @@ const VisualCard: FC<ObjectType> = ({ name, loading, config, id, data }) => {
 
   return (
     <div title={name} className='relative w-full h-full'>
-      <Typography.Text strong className="block pb-[8px]">{name}</Typography.Text>
-      <Divider className="!mt-[0px] !mb-[0px]" />
+      <Typography.Text strong className='block pb-[8px]'>
+        {name}
+      </Typography.Text>
+      <Divider className='!mt-[0px] !mb-[0px]' />
       {loading && <Loader />}
-      <div id={id} className='w-full h-full pt-[8px]'></div>
+      {config.type === constants.VIZ_CONFIG.CHART_TYPES.TABLE ? (
+        <Table propsData={config.propsData} data={jsonData} className="w-full h-full overflow-scroll" />
+      ) : (
+        <div id={id} className='w-full h-full pt-[8px]'></div>
+      )}
     </div>
   );
 };

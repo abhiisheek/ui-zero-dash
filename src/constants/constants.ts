@@ -41,12 +41,14 @@ export default {
       NUMBER: "NUMBER",
       SELECT: "SELECT",
       BOOLEAN: "BOOLEAN",
+      TABLE_COLUMN: "TABLE_COLUMN",
     },
     CHART_TYPES: {
       BAR: BAR,
       PIE: ARC,
       LINE: LINE,
       AREA: AREA,
+      TABLE: "table",
     },
     VALUE_TYPES: {
       NOMINAL: NOMINAL,
