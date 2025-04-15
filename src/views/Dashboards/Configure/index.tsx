@@ -1,6 +1,7 @@
 import { FC, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 import { Row, Col, Input, Card, Button } from "antd";
+import { DeleteOutlined } from "@ant-design/icons";
 import { useNavigate, useParams } from "react-router";
 import { nanoid } from "nanoid";
 
@@ -64,6 +65,7 @@ const CreateDashboard: FC<ObjectType> = ({ mode }) => {
           details.data.map((viz: any, index: number) => ({
             ...viz[0],
             gridItemId: dashboardDetails?.config?.viz[index]?.gridItemId,
+            name: dashboardDetails?.config?.viz[index]?.name || viz[0].name,
           })),
         );
         setGridLayouts(() => dashboardDetails?.config?.layout || { lg: [] });
@@ -104,6 +106,7 @@ const CreateDashboard: FC<ObjectType> = ({ mode }) => {
         viz: vizAddedToDashboard.map((viz: ObjectType) => ({
           vizId: viz._id,
           gridItemId: viz.gridItemId,
+          name: viz.name,
         })),
       },
     };
@@ -133,6 +136,7 @@ const CreateDashboard: FC<ObjectType> = ({ mode }) => {
         viz: vizAddedToDashboard.map((viz: ObjectType) => ({
           vizId: viz._id,
           gridItemId: viz.gridItemId,
+          name: viz.name,
         })),
       },
     };
@@ -238,6 +242,30 @@ const CreateDashboard: FC<ObjectType> = ({ mode }) => {
     emit(constants.EVENTS.VIZ_RESIZE, {});
   }, []);
 
+  const handleOnDelete = useCallback((viz: any) => {
+    setVizAddedToDashboard((old: any) =>
+      old.filter((item: ObjectType) => item.gridItemId !== viz.gridItemId),
+    );
+    setGridLayouts((old: any) => ({
+      ...old,
+      lg: old.lg.filter((item: ObjectType) => item.i !== viz.gridItemId),
+    }));
+  }, []);
+
+  const handleOnUpdateVizName = useCallback(
+    (gridItemId: string, name: string) =>
+      setVizAddedToDashboard((old: any) =>
+        old.map((viz: any) => {
+          if (viz.gridItemId === gridItemId) {
+            return { ...viz, name };
+          } else {
+            return viz;
+          }
+        }),
+      ),
+    [],
+  );
+
   return (
     <>
       {(isGetProjectDetailsPending ||
@@ -339,12 +367,28 @@ const CreateDashboard: FC<ObjectType> = ({ mode }) => {
                   key={viz.gridItemId}
                   className='bg-white shadow-md shadow-lg p-[16px] rounded-[4px]'
                 >
+                  <Row
+                    gutter={8}
+                    className='absolute w-full right-[16px] top-[4px]'
+                    justify='end'
+                    align='middle'
+                  >
+                    <Col>
+                      <Button
+                        icon={<DeleteOutlined />}
+                        onClick={() => handleOnDelete(viz)}
+                        shape='circle'
+                      ></Button>
+                    </Col>
+                  </Row>
                   <VisualCard
                     id={viz.gridItemId}
                     config={viz.config}
                     loading={executeQueries[index]?.isPending}
                     data={executeQueries[index]?.data}
                     name={viz.name}
+                    preview={false}
+                    updateVizName={handleOnUpdateVizName}
                   />
                 </div>
               );

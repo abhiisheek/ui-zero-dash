@@ -39,6 +39,7 @@ const ViewDashboard: FC<ObjectType> = ({ mode }) => {
           details.data.map((viz: any, index: number) => ({
             ...viz[0],
             gridItemId: dashboardDetails?.config?.viz[index]?.gridItemId,
+            name: dashboardDetails?.config?.viz[index]?.name || viz[0].name,
           })),
         );
         setGridLayouts(() => {
@@ -102,9 +103,9 @@ const ViewDashboard: FC<ObjectType> = ({ mode }) => {
     }
   }, [projectId, dashboardId, mode]);
 
-  const handleOnLayoutChange = useCallback((currentLayout: any) => {
-    setGridLayouts((old: any) => ({ ...old, lg: currentLayout }));
-  }, []);
+  // const handleOnLayoutChange = useCallback((currentLayout: any) => {
+  //   setGridLayouts((old: any) => ({ ...old, lg: currentLayout }));
+  // }, []);
 
   const handleOnResizeStop = useCallback(() => {
     emit(constants.EVENTS.VIZ_RESIZE, {});
@@ -120,7 +121,7 @@ const ViewDashboard: FC<ObjectType> = ({ mode }) => {
           <Breadcrumb
             items={[
               { title: "Home", path: "" },
-              { title: "Projects", path: "/projects" },
+              { title: "Projects", path: "/user/projects" },
               { title: projectDetails?.name || "Project Name", path: `/${projectId}/dashboards` },
               // { title: "Dashboards", path: `/dashboards` },
               { title: dashboardDetails?.name || "Dashboard", path: `/dashboards` },
@@ -138,7 +139,7 @@ const ViewDashboard: FC<ObjectType> = ({ mode }) => {
         <Col span={24}>
           <DashboardCanvas
             layouts={gridLayouts}
-            onLayoutChange={handleOnLayoutChange}
+            // onLayoutChange={handleOnLayoutChange}
             onResizeStop={handleOnResizeStop}
             isDroppable={false}
             isDraggable={false}
@@ -161,6 +162,7 @@ const ViewDashboard: FC<ObjectType> = ({ mode }) => {
                     data={executeQueries[index]?.data}
                     name={viz.name}
                     static={true}
+                    preview={true}
                   />
                 </div>
               );

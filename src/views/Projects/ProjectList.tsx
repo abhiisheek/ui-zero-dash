@@ -61,7 +61,7 @@ const ProjectList: React.FC<ObjectType> = ({ persona = ADMIN }) => {
           if (persona === ADMIN) {
             return (
               <Row align='middle'>
-                <Link to={`/projects/${dataItem._id}`}>{name}</Link>
+                <Link to={`/projects/${dataItem._id}`} className='!pr-[4px]'>{name}</Link>
                 {dataItem.public && <Badge count={"Public"} showZero color='#faad14' />}
               </Row>
             );
@@ -74,7 +74,9 @@ const ProjectList: React.FC<ObjectType> = ({ persona = ADMIN }) => {
             if (hasAccess) {
               return (
                 <Row align='middle'>
-                  <Link to={`/user/projects/${dataItem._id}/dashboards`}>{name}</Link>
+                  <Link to={`/user/projects/${dataItem._id}/dashboards`} className='!pr-[4px]'>
+                    {name}
+                  </Link>
                   {dataItem.public && <Badge count={"Public"} showZero color='#faad14' />}
                 </Row>
               );
